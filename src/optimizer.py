@@ -2,13 +2,20 @@
 optimizer.py
 ------------
 
-Core Black–Litterman posterior returns and mean–variance optimization.
+Core portfolio math: Black–Litterman posterior and mean–variance optimization.
 
-Key functions:
-- black_litterman_posterior: compute posterior expected returns and covariance.
-- mean_variance_opt: solve min variance for target return or max Sharpe.
-- efficient_frontier: generate (risk, return, weights) along frontier.
-- compare_mv_vs_bl: produce both MV (using historical mu) and BL frontiers.
+Functionality:
+- black_litterman_posterior: Compute posterior mean/covariance blending π with views.
+- efficient_frontier: Generate risk/return curve and weights along the frontier.
+- max_sharpe_portfolio: Compute the tangency (max Sharpe) portfolio.
+- compare_mv_vs_bl: Build both MV (historic mu, Σ) and BL (posterior) frontiers.
+
+Intended Use:
+- Use with data and views to compare traditional MV vs BL-implied allocations and
+	highlight the optimal (max Sharpe) portfolios.
+
+Author: Joseph Goo Wei Zhen
+Date: 2025-08-08
 """
 
 from __future__ import annotations

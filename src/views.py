@@ -2,8 +2,20 @@
 views.py
 --------
 
-Helper utilities to build the views matrix (P), view returns (Q), and
-the view uncertainty matrix (Ω) for the Black–Litterman model.
+This module specifies subjective investor views and their uncertainties for
+the Black–Litterman model.
+
+Functionality:
+- absolute_view: Set an absolute expected return view for a specific asset.
+- relative_view: Set a relative view (asset A minus asset B equals magnitude).
+- build_PQ: Stack a list of views into matrices P (loadings) and Q (view returns).
+- tau_omega: Heuristic construction of view uncertainty matrix Ω via diag(PΣPᵀ)·τ.
+
+Intended Use:
+Construct (P, Q, Ω) inputs for optimizer.black_litterman_posterior.
+
+Author: Joseph Goo Wei Zhen
+Date: 2025-08-08
 """
 
 from __future__ import annotations

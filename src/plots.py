@@ -2,7 +2,17 @@
 plots.py
 --------
 
-Visualization utilities: plot efficient frontier for MV and BL.
+Visualization utilities for efficient frontier comparison.
+
+Functionality:
+- plot_frontiers: Plot historical MV and BL frontiers and mark max Sharpe points.
+
+Intended Use:
+Display how BL views shift the efficient frontier and the location of the
+optimal portfolios relative to traditional MV.
+
+Author: Joseph Goo Wei Zhen
+Date: 2025-08-08
 """
 
 from __future__ import annotations

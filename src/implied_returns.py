@@ -1,13 +1,22 @@
 """
 implied_returns.py
--------------------
+------------------
 
-Equilibrium returns (π) and helper utilities for the Black–Litterman model.
+Compute equilibrium (market-implied) returns π for the Black–Litterman model
+and provide related utilities.
 
-Key functions:
-- market_implied_risk_aversion: estimate risk aversion delta from market.
-- market_caps_to_weights: convert market caps to market portfolio weights.
-- compute_pi: compute equilibrium returns π = δ · Σ · w_mkt.
+Functionality:
+- market_caps_to_weights: Normalize market capitalizations to market weights.
+- market_implied_risk_aversion: Estimate risk aversion (δ) using CAPM relation.
+- compute_pi: Compute equilibrium returns π = δ · Σ · w_mkt.
+
+Intended Use:
+- Given annualized covariance Σ and market weights w_mkt (from market caps),
+  compute π as the neutral prior expected returns in BL.
+- Feeds into optimizer.black_litterman_posterior alongside views.
+
+Author: Joseph Goo Wei Zhen
+Date: 2025-08-08
 """
 
 from __future__ import annotations

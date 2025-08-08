@@ -2,7 +2,17 @@
 evaluator.py
 ------------
 
-Backtesting utilities and performance metrics for portfolio weights.
+Backtesting utilities and performance metrics for portfolio strategies.
+
+Functionality:
+- portfolio_returns: Compute time series returns for fixed weights.
+- performance_stats: Report annualized return, volatility, Sharpe, and max drawdown.
+
+Intended Use:
+Evaluate MV or BL-derived portfolios on historical return series.
+
+Author: Joseph Goo Wei Zhen
+Date: 2025-08-08
 """
 
 from __future__ import annotations

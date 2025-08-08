@@ -1,5 +1,11 @@
 """
-Basic unit tests for BL posterior and frontier generation.
+test_optimizer.py
+-----------------
+
+Basic unit tests for Black–Litterman posterior and efficient frontier generation.
+
+Author: Joseph Goo Wei Zhen
+Date: 2025-08-08
 """
 
 import numpy as np

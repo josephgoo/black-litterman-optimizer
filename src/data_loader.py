@@ -2,17 +2,32 @@
 data_loader.py
 --------------
 
-Data acquisition and preprocessing utilities for the Black–Litterman project.
+This module handles data acquisition and preprocessing for the
+Black–Litterman Bayesian Portfolio Optimizer project.
 
-Functions:
-- fetch_prices: Download historical prices from Yahoo Finance (via yfinance).
-- compute_returns: Compute simple or log returns and annualize, if needed.
-- estimate_covariance: Compute sample covariance matrix (optionally shrink).
-- align_data: Align and clean price/return dataframes (drop NA, reindex).
+Functionality:
+- Download historical asset prices from Yahoo Finance via the yfinance API.
+- Align and clean price data (sort index, drop missing values).
+- Compute periodic returns (simple or log) and annualized mean returns.
+- Estimate annualized covariance matrices with optional ridge shrinkage.
+- Provide a convenience helper to return (mu, Sigma) from price data.
+
+Intended Use:
+This script is designed as the first stage in the optimizer pipeline,
+supplying processed market data to:
+	1. implied_returns.py (for CAPM-based equilibrium returns, π)
+	2. views.py (for subjective views construction)
+	3. optimizer.py (for MV/BL portfolio construction and frontiers)
+	4. evaluator.py (for portfolio performance stats)
+	5. plots.py (for MV vs BL frontier visualization)
 
 Notes:
-- Internet access is required for live downloads; for offline work, read from CSV and
-  pass prices directly into compute_returns.
+- Internet access is required for live downloads; for offline workflows,
+  read CSVs into a wide price DataFrame and call compute_returns/returns_and_covariance.
+- TRADING_DAYS is set to 252 for annualization.
+
+Author: Joseph Goo Wei Zhen
+Date: 2025-08-08
 """
 
 from __future__ import annotations
