@@ -129,3 +129,19 @@ def compare_mv_vs_bl(
 	bl = efficient_frontier(mu_bl, Sigma_bl, n=n, risk_free=risk_free)
 	return {"mv": mv, "bl": bl}
 
+
+def max_sharpe_portfolio(
+	mu: pd.Series,
+	Sigma: pd.DataFrame,
+	risk_free: float = 0.0,
+) -> Tuple[pd.Series, float, float, float]:
+	"""Compute the maximum Sharpe ratio portfolio weights and its metrics.
+
+	Returns: (weights, expected_return, risk, sharpe)
+	"""
+	w = _quad_solve_weights(mu, Sigma, target_return=None, risk_free=risk_free)
+	exp_ret = float(w @ mu)
+	risk = float(np.sqrt(w.values.T @ Sigma.values @ w.values))
+	sharpe = (exp_ret - risk_free) / (risk + 1e-12)
+	return w, exp_ret, risk, sharpe
+

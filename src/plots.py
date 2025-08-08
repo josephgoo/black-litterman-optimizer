@@ -23,6 +23,15 @@ def plot_frontiers(
 	fig, ax = plt.subplots(figsize=(8, 5))
 	ax.plot(mv_df["risk"], mv_df["return"], label="Mean-Variance", color="tab:blue")
 	ax.plot(bl_df["risk"], bl_df["return"], label="Black–Litterman", color="tab:orange")
+	# Mark max Sharpe points (approx by slope vs RF at discrete points)
+	def _mark_max(df, color, label):
+		sharpe = df["return"] / df["risk"].replace(0, 1e-12)
+		i = sharpe.idxmax()
+		ax.scatter(df.loc[i, "risk"], df.loc[i, "return"], color=color, marker="o")
+		ax.annotate(f"{label} max Sharpe", (df.loc[i, "risk"], df.loc[i, "return"]),
+					textcoords="offset points", xytext=(5,5), fontsize=8, color=color)
+	_mark_max(mv_df, "tab:blue", "MV")
+	_mark_max(bl_df, "tab:orange", "BL")
 	ax.set_xlabel("Risk (Std Dev)")
 	ax.set_ylabel("Expected Return")
 	ax.set_title(title)
