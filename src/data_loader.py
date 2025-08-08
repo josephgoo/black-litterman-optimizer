@@ -22,8 +22,7 @@ supplying processed market data to:
 	5. plots.py (for MV vs BL frontier visualization)
 
 Notes:
-- Internet access is required for live downloads; for offline workflows,
-  read CSVs into a wide price DataFrame and call compute_returns/returns_and_covariance.
+- Data fetching is supported via yfinance only and requires internet access.
 - TRADING_DAYS is set to 252 for annualization.
 
 Author: Joseph Goo Wei Zhen

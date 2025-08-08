@@ -3,7 +3,7 @@
 A practical Python project that implements the Black–Litterman (BL) model for portfolio construction, alongside classic mean–variance (MV) optimization. It provides utilities to fetch market data, compute CAPM equilibrium returns, specify investor views, blend them using BL, and compare efficient frontiers and optimal portfolios.
 
 ## Features
-- Data loading from Yahoo Finance (yfinance) or CSVs
+- Data loading from Yahoo Finance (yfinance)
 - Return and covariance estimation (annualized)
 - Market-implied equilibrium returns π
 - View construction (absolute and relative) and uncertainty Ω
