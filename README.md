@@ -11,15 +11,18 @@ A practical Python project that implements the Black–Litterman (BL) model for 
 - Efficient frontier generation and visualization (MV vs BL)
 - Tangent (max Sharpe) portfolio with robust handling when no risk-free asset exists
 - Security Market Line (SML) plot and comparisons
+ - Rolling backtests (monthly rebalance) for MV vs BL
+ - Transaction costs and turnover tracking, including cost-sensitivity sweeps
+ - Benchmark comparison vs S&P 500 (SPY)
 
 ## Tech Stack
 - Python 3.10+
 - pandas, numpy, matplotlib
 - yfinance (data)
-- cvxpy (optional if you later add box/budget constraints)
+- cvxpy (optional if adding box/budget constraints)
 
 ## Quickstart
-1) Create environment and install dependencies
+Create environment and install dependencies
 
 ```bash
 # Option A: conda (recommended)
@@ -31,43 +34,11 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-2) Example usage (script outline):
-
-```python
-import pandas as pd
-from src import data_loader as dl
-from src import implied_returns as ir
-from src import views as vw
-from src import optimizer as opt
-from src import plots
-
-# 1) Fetch prices
-tickers = ["AAPL", "MSFT", "GOOGL", "AMZN"]
-prices = dl.fetch_prices(tickers, start="2018-01-01").prices
-
-# 2) Estimate returns & covariance (annualized)
-mu_hist, Sigma_hist = dl.returns_and_covariance(prices, method="log")
-
-# 3) Market caps -> weights and equilibrium returns
-market_caps = {t: 1.0 for t in tickers}  # placeholder; replace with real caps
-w_mkt = ir.market_caps_to_weights(market_caps)
-delta = 2.5  # risk aversion (example)
-pi = ir.compute_pi(Sigma_hist, w_mkt, delta)
-
-# 4) Create views (example: AAPL expected to outperform MSFT by 2% annually)
-P_row, q = vw.relative_view(tickers, long="AAPL", short="MSFT", magnitude=0.02)
-P, Q = vw.build_PQ([(P_row, q)])
-
-# 5) BL posterior
-bl = opt.black_litterman_posterior(Sigma_hist, pi, P, Q, tau=0.05)
-
-# 6) Compare frontiers and plot
-curves = opt.compare_mv_vs_bl(mu_hist, Sigma_hist, bl.mu_bl, bl.Sigma_bl)
-fig, ax = plots.plot_frontiers(*curves.values())
-```
-
 ## Notebooks
-- `notebooks/Black-Litterman.ipynb`: A guided walkthrough of BL vs MV. Run it to reproduce the charts.
+- `notebooks/Black-Litterman1.ipynb`: A guided walkthrough of BL vs MV. Run it to reproduce the charts.
+- `notebooks/Black-Litterman2.ipynb`: Rolling, monthly-rebalanced backtest comparing MV vs BL with a relative view.
+	Includes turnover and transaction costs, cumulative return charts, performance tables,
+	cost-sensitivity sweeps (varying bps), and a comparison vs S&P 500 (SPY).
 
 ### Reproducing the notebook results (defaults)
 - Tickers: AAPL, MSFT, GOOGL, AMZN
@@ -76,7 +47,15 @@ fig, ax = plots.plot_frontiers(*curves.values())
 - τ (tau): 0.05
 - View: AAPL expected to outperform MSFT by 2% annually (relative view)
 
-Run the notebook cells top to bottom. It fetches data, estimates μ and Σ, computes π from betas, constructs the BL posterior, plots MV vs BL frontiers, and compares optimal portfolios.
+Run the notebook cells top to bottom. It fetches data, estimates μ and Σ, computes π from betas,
+constructs the BL posterior, plots MV vs BL frontiers, and compares optimal portfolios.
+
+For Part 2 (Backtest), the notebook:
+- Uses a rolling 3-year lookback window with last-trading-day monthly rebalancing.
+- Computes MV and BL weights each month (tangent portfolio if a risk-free is provided, otherwise a midpoint target-return portfolio).
+- Tracks turnover and applies transaction costs on rebalance days (round-trip bps).
+- Plots cumulative returns, reports CAGR/vol/Sharpe/max drawdown, and shows last-period weights.
+- Adds a cost-sensitivity sweep and a benchmark comparison against SPY.
 
 ## Tests
 Run unit tests:
@@ -91,14 +70,39 @@ pytest -q
 	- MV concentrates (and may short) historically strong assets (e.g., MSFT). BL diversifies more, reflecting the AAPL>MSFT view.
 - SML insights: MSFT’s historical profile helps explain MV’s tilt without views.
 
+Part 2 – Backtesting highlights:
+- BL achieved higher Sharpe with lower drawdowns than MV once realistic transaction costs were applied.
+- MV exhibited much higher turnover, leading to larger cost drag; BL’s blended prior/views stabilized allocations and reduced trading.
+- Against SPY, BL provided competitive risk-adjusted returns with lower drawdowns in the sample window.
+
 Results vary with tickers, dates, τ, and views.
 
 ## Suggested next steps
 - Estimation robustness: Ledoit–Wolf/OAS shrinkage Σ; factor-model covariances; compare frontiers.
-- Sensitivity: τ and view-confidence sweeps with Sharpe/weight heatmaps.
-- Constraints and costs: Long-only/leverage caps; turnover and transaction costs.
-- Backtesting: Walk-forward with monthly rebalance and realistic costs.
+- Sensitivity: τ and view-confidence sweeps with Sharpe/weight heatmaps; add weekly/quarterly rebalance variants.
+- Constraints and costs: Long-only/leverage caps; explicit transaction-cost-aware optimization (e.g., cvxpy).
 - Attribution: Risk contributions, factor exposures, and view attribution.
+- Benchmarking: Explore broader universes and alternative benchmarks (QQQ, equal-weight). 
 
 ## License
-See `LICENSE`.
+MIT License
+
+Copyright (c) 2025 Joseph Goo Wei Zhen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

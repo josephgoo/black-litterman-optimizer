@@ -1,0 +1,25 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run minimal backtest smoke",
+			"type": "shell",
+			"command": "python - << 'PY'\nimport sys\nfrom pathlib import Path\nsys.path.insert(0, str(Path('.').resolve()))\nfrom src import backtest as bt\n\ntry:\n    res = bt.run_backtest(\n        tickers=['AAPL','MSFT','GOOGL','AMZN'],\n        start='2016-01-01',\n        window_years=3,\n        tau=0.05,\n        risk_free=0.0,\n        view_spec=('AAPL','MSFT',0.02),\n    )\n    # print quick stats\n    print('MV stats:', res.mv_stats)\n    print('BL stats:', res.bl_stats)\n    print('OK')\nexcept Exception as e:\n    print('ERROR:', type(e).__name__, e)\nPY"
+		},
+		{
+			"label": "Run minimal backtest smoke (python3)",
+			"type": "shell",
+			"command": "python3 - << 'PY'\nimport sys\nfrom pathlib import Path\nsys.path.insert(0, str(Path('.').resolve()))\nfrom src import backtest as bt\n\ntry:\n    res = bt.run_backtest(\n        tickers=['AAPL','MSFT','GOOGL','AMZN'],\n        start='2016-01-01',\n        window_years=3,\n        tau=0.05,\n        risk_free=0.0,\n        view_spec=('AAPL','MSFT',0.02),\n    )\n    print('MV stats:', res.mv_stats)\n    print('BL stats:', res.bl_stats)\n    print('OK')\nexcept Exception as e:\n    print('ERROR:', type(e).__name__, e)\nPY"
+		},
+		{
+			"label": "Run unit tests",
+			"type": "shell",
+			"command": "python3 -m pytest -q"
+		},
+		{
+			"label": "Backtest smoke with costs (python3)",
+			"type": "shell",
+			"command": "python3 - << 'PY'\nimport sys\nfrom pathlib import Path\nsys.path.insert(0, str(Path('.').resolve()))\nfrom src import backtest as bt\n\nres = bt.run_backtest(\n    tickers=['AAPL','MSFT','GOOGL','AMZN'],\n    start='2016-01-01',\n    window_years=3,\n    tau=0.05,\n    risk_free=0.0,\n    view_spec=('AAPL','MSFT',0.02),\n    cost_bps=10.0,\n)\nprint('MV stats:', res.mv_stats)\nprint('BL stats:', res.bl_stats)\nprint('MV total cost:', res.mv_total_cost, 'BL total cost:', res.bl_total_cost)\nprint('Avg TO (MV, BL):', sum(res.mv_turnover.values())/len(res.mv_turnover), sum(res.bl_turnover.values())/len(res.bl_turnover))\nprint('OK')\nPY"
+		}
+	]
+}

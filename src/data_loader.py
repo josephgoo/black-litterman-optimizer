@@ -82,11 +82,44 @@ def fetch_prices(
 
 	# yfinance returns different shapes depending on single vs multi tickers
 	if len(tickers) == 1:
-		# Single ticker: DataFrame with columns like ['Open','High',...]
-		prices = data[["Close"]].rename(columns={"Close": tickers[0]})
+		# Single ticker can still have a MultiIndex when group_by='ticker'.
+		col = None
+		if isinstance(data.columns, pd.MultiIndex):
+			# Expect (TICKER, Field)
+			ticker = tickers[0]
+			if (ticker, "Close") in data.columns:
+				col = data[(ticker, "Close")]
+			elif (ticker, "Adj Close") in data.columns:
+				col = data[(ticker, "Adj Close")]
+			else:
+				# Fallback: try to locate any field containing 'Close'
+				candidates = [c for c in data.columns if str(c[1]).lower().endswith("close")]  # type: ignore[index]
+				if candidates:
+					col = data[candidates[0]]
+				else:
+					raise KeyError("No 'Close' or 'Adj Close' column found in yfinance data")
+			prices = col.to_frame(name=tickers[0])
+		else:
+			# Flat columns like ['Open','High','Low','Close','Volume']
+			src = "Close" if "Close" in data.columns else ("Adj Close" if "Adj Close" in data.columns else None)
+			if src is None:
+				raise KeyError("No 'Close' or 'Adj Close' column found in yfinance data")
+			prices = data[[src]].rename(columns={src: tickers[0]})
 	else:
 		# Multi ticker: Column MultiIndex (Ticker, Field)
-		closes = {t: data[(t, "Close")] for t in tickers}
+		closes = {}
+		for t in tickers:
+			if (t, "Close") in data.columns:
+				closes[t] = data[(t, "Close")]
+			elif (t, "Adj Close") in data.columns:
+				closes[t] = data[(t, "Adj Close")]
+			else:
+				# Fallback: try any *Close* field for this ticker
+				fields = [lvl1 for (tick, lvl1) in data.columns if tick == t]
+				close_like = [f for f in fields if str(f).lower().endswith("close")]
+				if not close_like:
+					raise KeyError(f"No 'Close' or 'Adj Close' for ticker {t}")
+				closes[t] = data[(t, close_like[0])]
 		prices = pd.DataFrame(closes)
 
 	prices.index = pd.to_datetime(prices.index)
